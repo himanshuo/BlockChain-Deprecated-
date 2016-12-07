@@ -1,2 +1,2 @@
 # BlockChain
-Generic Block Chain
+Generic Open Source Block Chain
