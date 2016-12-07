@@ -11,6 +11,7 @@ public class Transaction {
     Client sender;
     Client receiver;
 
+    Transaction previous;
 
     private boolean isUniqueId(String id, ArrayList<Transaction> ledger){
         for(Transaction t: ledger){
@@ -40,7 +41,13 @@ public class Transaction {
         return out;
     }
 
-    // actually does the transferring
+    public void broadcast(){
+        //send to internet so others can pick up
+        Internet i = Internet.getInstance();
+
+    }
+
+    // actually does the transferring, broadcasting, ...
     public boolean submit(){
         return true;
     }
