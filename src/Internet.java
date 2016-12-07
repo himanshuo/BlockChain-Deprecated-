@@ -5,8 +5,8 @@ import java.util.ArrayList;
  */
 public class Internet {
     //this is a fake class that is mocks the internet for this BlockChain protocol
-    
-    private static ArrayList<Transaction> transactions = new ArrayList<>();
+
+    private static ArrayList<Client> clients = new ArrayList<>();
     private Internet(){}    // prevent anyone from creating another internet
 
 //    private static Internet singleInstance;
@@ -18,8 +18,8 @@ public class Internet {
 //    }
 
 
-    public static void addTransaction(Transaction t){
-        transactions.add(t);
+    public static void registerClient(Client c){
+        clients.add(c);
     }
 
 }

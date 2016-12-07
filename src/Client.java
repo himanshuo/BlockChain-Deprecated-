@@ -10,7 +10,11 @@ public class Client {
     //todo (himanshuo): each client does have a linked list of all transactions. thus this needs to be a linked list instead of a arraylist
     ArrayList<Transaction> ledger = new ArrayList<Transaction>();
 
+    public Client(){
+        Internet.registerClient(this);
+    }
     public Client(int x){
+        this();
         coins = x;
     }
 

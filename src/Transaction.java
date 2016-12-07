@@ -41,14 +41,15 @@ public class Transaction {
         return out;
     }
 
-    public void broadcast(){
+    public void broadcast(Transaction t){
         //send to internet so others can pick up
-        Internet i = Internet.getInstance();
+        Internet.addTransaction(t);
 
     }
 
     // actually does the transferring, broadcasting, ...
     public boolean submit(){
+        broadcast(this);
         return true;
     }
 }
