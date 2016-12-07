@@ -54,10 +54,8 @@ public class Transaction {
         return true;
     }
 
-
     public String toString(){
-        return String.format("%s: %s %s->%s",
-                id,
+        return String.format("%s: %s->%s",
                 amount,
                 sender.ipaddress,
                 receiver.ipaddress
