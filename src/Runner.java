@@ -2,6 +2,7 @@
  * Created by himanshu on 12/5/16.
  */
 public class Runner {
+
     public static void main(String args[]){
         // you have to initialize the internet before doing anything, lol
 
@@ -23,9 +24,9 @@ public class Runner {
         System.out.printf("c has %s coins\n", c.coins);
 
         //each knows about the transaction history
-        System.out.printf("a: %s\n", a.ledger);
-        System.out.printf("b: %s\n", b.ledger);
-        System.out.printf("c: %s\n", c.ledger);
+        System.out.printf("a: %s\n", a.ledger.toString());
+        System.out.printf("b: %s\n", b.ledger.toString());
+        System.out.printf("c: %s\n", c.ledger.toString());
         
     }
 }

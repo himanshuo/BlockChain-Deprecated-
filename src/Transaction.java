@@ -43,13 +43,24 @@ public class Transaction {
 
     public void broadcast(Transaction t){
         //send to internet so others can pick up
-        Internet.addTransaction(t);
-
+        for(Client c: Internet.getClientList()){
+            c.ledger.add(t);
+        }
     }
 
     // actually does the transferring, broadcasting, ...
     public boolean submit(){
         broadcast(this);
         return true;
+    }
+
+
+    public String toString(){
+        return String.format("%s: %s %s->%s",
+                id,
+                amount,
+                sender.ipaddress,
+                receiver.ipaddress
+                );
     }
 }

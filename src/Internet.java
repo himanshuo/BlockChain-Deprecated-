@@ -18,8 +18,13 @@ public class Internet {
 //    }
 
 
-    public static void registerClient(Client c){
+    public static String registerClient(Client c){
         clients.add(c);
+        return "ipaddr." + String.valueOf((int)(Math.random() * 10000));
+    }
+
+    public static ArrayList<Client> getClientList(){
+        return clients;
     }
 
 }
