@@ -24,7 +24,7 @@ public class Transaction {
         list.add(r);
 
         Transaction out = new Transaction();
-        out.id = ""+r;
+        out.id = "" + r;
         return out;
     }
 }
