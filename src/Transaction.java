@@ -7,24 +7,41 @@ import java.util.Map;
  */
 public class Transaction {
     String id;
-    ArrayList<Double> list = new ArrayList<>();
+    int amount;
+    Client sender;
+    Client receiver;
 
 
-
-
-    private Transaction(){}
-
-    public Transaction generate(){
-        //todo(himanshuo): uniqueness should not be in memory
-
-        double r = Math.random();
-        while(list.contains(r)){
-            r = Math.random();
+    private boolean isUniqueId(String id, ArrayList<Transaction> ledger){
+        for(Transaction t: ledger){
+            if(t.id.equals(id)) return false;
         }
-        list.add(r);
+        return true;
+    }
+    private String getUniqueId(){
+        //todo(himanshuo): uniqueness should not be in memory
+        String potentialId = String.valueOf(Math.random());
+        while(!isUniqueId(potentialId, sender.ledger)){
+            potentialId = String.valueOf(Math.random());
+        }
+        return potentialId;
+    }
 
-        Transaction out = new Transaction();
-        out.id = "" + r;
+    private Transaction(Client sender, Client receiver, int amount){
+        this.amount = amount;
+        this.sender = sender;
+        this.receiver = receiver;
+        //todo (himanshuo): generate id first?
+        this.id = getUniqueId();
+    }
+
+    public static Transaction generate(Client sender, Client receiver, int amount){
+        Transaction out = new Transaction(sender, receiver, amount);
         return out;
+    }
+
+    // actually does the transferring
+    public boolean submit(){
+        return true;
     }
 }
