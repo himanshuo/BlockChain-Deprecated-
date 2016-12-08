@@ -1,8 +1,13 @@
 Requirements
 ===================
 
-- [ ] a task list item
-- [ ] list syntax required
-- [ ] normal **formatting**, @mentions, #1234 refs
-- [ ] incomplete
-- [x] completed
+- [ ] identify clients via bitcoin address (uses RIPEMD-160 hash)
+- [ ] SHA-256 hash used for normal things
+- [ ] Merkle Trees
+- [ ] Sign Transactions
+- [ ] Cut Down todos
+- [ ] Transaction Verification
+- [ ] configurable Transaction Verification
+- [ ] Bitcoin Address?
+- [ ] Message Structure
+- [ ] 

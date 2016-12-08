@@ -20,4 +20,5 @@ Generic Open Source Block Chain
 * config file for custom version of blockchain
 * config database for custom version of blockchain?
 * Smart Contracts
-*
+* Rename BlockChain -> MyBlockChain?
+* SideChain 
