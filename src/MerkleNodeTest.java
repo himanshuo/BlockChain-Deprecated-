@@ -12,6 +12,10 @@ public class MerkleNodeTest {
         MerkleTree mt = new MerkleTree("merkle is cooler than urkle");
         MerkleTree.MerkleNode mn = mt.root;
         assertEquals(32, mt.root.value.length);
+        assertEquals(
+            "9ad9cb0110ab8bf791ad990f76c7007d12ed9692a751e7ceb2e7f0e8391435cb",
+            mt.root.toString()
+        );
     }
 
 }
