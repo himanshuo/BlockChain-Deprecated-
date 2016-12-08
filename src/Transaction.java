@@ -16,6 +16,7 @@ public class Transaction {
     //todo (himanshuo): byte size of Transaction?
 
     //todo (himanshuo): in and out are very different than bitcoin protocol. Good/Bad?
+    //todo (himanshuo): Each input must have a cryptographic digital signature that unlocks the funds from the prior transaction. Only the person possessing the appropriate private key is able to create a satisfactory signature; this in effect ensures that funds can only be spent by their owners.
     ArrayList<Transaction> in;
     ArrayList<Transaction> out;
 

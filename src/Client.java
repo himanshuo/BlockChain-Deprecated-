@@ -43,6 +43,7 @@ public class Client {
               1) 'in' transactions have to exist in client's ledger
               2) 'in' transactions have to have correct hash
               3) sum('out' transaction values) <= sum('in' transactions values)
+              4)
          More advanced Validation requires
               1) make it computationally costly for network users to validate transactions
                   1.1) hash function
