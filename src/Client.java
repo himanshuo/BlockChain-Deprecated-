@@ -35,4 +35,38 @@ public class Client {
 
         return true;
     }
+
+
+    public boolean validate(Transaction transaction){
+        /*todo (himanshuo):
+        Validating transaction requires
+              1) 'in' transactions have to exist in client's ledger
+              2) 'in' transactions have to have correct hash
+              3) sum('out' transaction values) <= sum('in' transactions values)
+         More advanced Validation requires
+              1) make it computationally costly for network users to validate transactions
+                  1.1) hash function
+                  1.2) can configure hash function
+              2) reward those who validate transactions
+                  2.1) lottery system of giving reward only to 1st client which validates (Internet randomization helps with this)
+        */
+
+        int inSum = 0, outSum = 0;
+        for(Transaction t : transaction.in){
+            //todo (himanshuo): 'contains' needs to be based on hashs of transactions
+            // 'in' transactions exist in ledger with correct hash
+            if(!this.ledger.contains(t)) {
+                return false;
+            }
+            inSum += t.amount;
+        }
+
+        for(Transaction t : transaction.out){
+            outSum += t.amount;
+        }
+
+        //todo (himanshuo): do I know 'in' sum in hash version?
+        // sum('out' transaction values) <= sum('in' transaction values)
+        return outSum <= inSum;
+    }
 }

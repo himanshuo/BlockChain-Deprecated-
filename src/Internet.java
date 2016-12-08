@@ -1,11 +1,12 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 /**
  * Created by himanshu on 12/7/16.
  */
 public class Internet {
-    //this is a fake class that is mocks the internet for this BlockChain protocol
-
+    //this is a fake class that mocks the internet for BlockChain
     private static ArrayList<Client> clients = new ArrayList<>();
     private Internet(){}    // prevent anyone from creating another internet
 
@@ -22,9 +23,14 @@ public class Internet {
         clients.add(c);
         return String.valueOf((int)(Math.random() * 10000));
     }
-
     public static ArrayList<Client> getClientList(){
+        //shuffling makes it so that the order of retrievals is random
+        long seed = System.nanoTime();
+        Collections.shuffle(clients, new Random(seed));
         return clients;
     }
 
+    public static void reset(){
+        clients.clear();
+    }
 }

@@ -4,8 +4,6 @@
 public class Runner {
 
     public static void main(String args[]){
-        // you have to initialize the internet before doing anything, lol
-
         Client a = new Client(6);
         Client b = new Client(5);
         Client c = new Client(1);
