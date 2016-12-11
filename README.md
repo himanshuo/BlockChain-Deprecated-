@@ -7,6 +7,7 @@ Generic Open Source Block Chain
 # Requirements
 
 # TODO
+* Organize src code into modules
 * Use original paper (https://bitcoin.org/bitcoin.pdf) and online article (http://www.michaelnielsen.org/ddi/how-the-bitcoin-protocol-actually-works/) to determine requirements
 * Use some dependency management system. Preferably something that also has a testing framework built in.
 * CI with travis, Jenkins, AWS

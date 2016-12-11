@@ -1,3 +1,8 @@
+import lib.Hash;
+import lib.Hashable;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.DoubleSummaryStatistics;
 import java.util.Map;
@@ -5,12 +10,12 @@ import java.util.Map;
 /**
  * Created by himanshu on 11/17/16.
  */
-public class Transaction {
-    String hash;
+public class Transaction implements Hashable {
+    byte [] hash;   //32 bit
     int amount;
     Client sender;
     Client receiver;
-    //todo (himanshuo): block chain version?
+    //todo (himanshuo): block_chain_configuration id
     //todo (himanshuo): num input / num output?
     //todo (himanshuo): lock time?
     //todo (himanshuo): byte size of Transaction?
@@ -21,38 +26,15 @@ public class Transaction {
     ArrayList<Transaction> out;
 
 
-    private boolean isUniqueHash(String hash, ArrayList<Transaction> ledger){
-        for(Transaction t: ledger){
-            if(t.hash.equals(hash)) return false;
-        }
-        return true;
-    }
 
-    //todo (himanshuo): instead of id, should be using hash of transaction
-    private String getUniqueId(){
-        //todo (himanshuo): uniqueness should not be in memory
-        //todo (himanshuo): hash function to generate unique id
-
-        String potentialId = String.valueOf(Math.random());
-        while(!isUniqueHash(potentialId, sender.ledger)){
-            potentialId = String.valueOf(Math.random());
-        }
-        return potentialId;
-    }
-
-    private Transaction(Client sender, Client receiver, int amount){
+    public Transaction(Client sender, Client receiver, int amount) throws NoSuchAlgorithmException, IOException, Hash.UnknownByteConversionException {
         this.amount = amount;
         this.sender = sender;
         this.receiver = receiver;
-        //todo (himanshuo): generate id first?
-        this.hash = getUniqueId();
+        //NOTE: Transaction hash is dependent on values thus can only be calculated once rest of items have been set.
+        this.hash = Hash.hash(this);
     }
 
-    //todo (himanshuo): this creates a central bank. Do not want this.
-    public static Transaction generate(Client sender, Client receiver, int amount){
-        Transaction out = new Transaction(sender, receiver, amount);
-        return out;
-    }
 
     public void broadcast(Transaction t){
         //send to internet so others can pick up
@@ -68,7 +50,7 @@ public class Transaction {
         //todo (himanshuo): get validations from others
         //todo (himanshuo): accept if >50% of others say its good
         //todo (himanshuo): if success, broadcast to others
-        if(true){
+        if(this.receiver.validate(this)){
             broadcast(this);
             return true;
         }
@@ -81,5 +63,9 @@ public class Transaction {
                 sender.ipaddress,
                 receiver.ipaddress
                 );
+    }
+
+    public byte[] getBytes(){
+        return this.toString().getBytes();
     }
 }

@@ -1,3 +1,8 @@
+import lib.Hash;
+import lib.ProofOfWork;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 /**
@@ -27,23 +32,32 @@ public class Client {
 
 
     public boolean send(Client toSend, int amount){
-        Transaction t = Transaction.generate(this, toSend, amount);
-        if(t.submit()){
-          toSend.coins += amount;
-          this.coins -= amount;
-         }
-
+        try {
+            Transaction t = new Transaction(this, toSend, amount);
+            if(t.submit()){
+                toSend.coins += amount;
+                this.coins -= amount;
+            }
+        } catch (NoSuchAlgorithmException e){
+            System.out.println(e.fillInStackTrace());
+            return false;
+        } catch (IOException e){
+            System.out.println(e.fillInStackTrace());
+            return false;
+        } catch (Hash.UnknownByteConversionException e){
+            System.out.println(e.fillInStackTrace());
+            return false;
+        }
         return true;
     }
 
 
     public boolean validate(Transaction transaction){
-        /*todo (himanshuo):
+        /*
         Validating transaction requires
               1) 'in' transactions have to exist in client's ledger
               2) 'in' transactions have to have correct hash
               3) sum('out' transaction values) <= sum('in' transactions values)
-              4)
          More advanced Validation requires
               1) make it computationally costly for network users to validate transactions
                   1.1) hash function
@@ -51,6 +65,7 @@ public class Client {
               2) reward those who validate transactions
                   2.1) lottery system of giving reward only to 1st client which validates (Internet randomization helps with this)
         */
+        //todo (himanshuo) : Verifications should be registered
 
         int inSum = 0, outSum = 0;
         for(Transaction t : transaction.in){
@@ -68,6 +83,16 @@ public class Client {
 
         //todo (himanshuo): do I know 'in' sum in hash version?
         // sum('out' transaction values) <= sum('in' transaction values)
-        return outSum <= inSum;
+        if(outSum > inSum) return false;
+
+        try {
+            ProofOfWork.SHA256(transaction.toString(),2);
+        } catch (Exception e){
+            //todo (himanshuo): perhaps some exceptions should bleed through?
+            System.out.println(e.fillInStackTrace());
+            return false;
+        }
+
+        return true;
     }
 }
