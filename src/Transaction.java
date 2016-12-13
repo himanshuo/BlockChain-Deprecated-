@@ -12,9 +12,6 @@ import java.util.Map;
  */
 public class Transaction implements Hashable {
     byte [] hash;   //32 bit
-    int amount;
-    Client sender;
-    Client receiver;
     //todo (himanshuo): block_chain_configuration id
     //todo (himanshuo): num input / num output?
     //todo (himanshuo): lock time?
@@ -27,10 +24,10 @@ public class Transaction implements Hashable {
 
 
 
-    public Transaction(Client sender, Client receiver, int amount) throws NoSuchAlgorithmException, IOException, Hash.UnknownByteConversionException {
-        this.amount = amount;
-        this.sender = sender;
-        this.receiver = receiver;
+    public Transaction(ArrayList<Transaction> in, ArrayList<Transaction> out) throws NoSuchAlgorithmException, IOException, Hash.UnknownByteConversionException {
+        this.in = in;
+        this.out = out;
+
         //NOTE: Transaction hash is dependent on values thus can only be calculated once rest of items have been set.
         this.hash = Hash.hash(this);
     }
@@ -59,9 +56,9 @@ public class Transaction implements Hashable {
 
     public String toString(){
         return String.format("%s: %s->%s",
-                amount,
-                sender.ipaddress,
-                receiver.ipaddress
+                this.hash,
+                this.in.toString(),
+                this.out.toString()
                 );
     }
 
