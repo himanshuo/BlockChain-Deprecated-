@@ -12,12 +12,14 @@ import java.util.Map;
  */
 public class Transaction implements Hashable {
     byte [] hash;   //32 bit
+    int version;
+    int inputSize;
+    int outputSize;
+    int lock_time; //todo (himanshuo): implement lock time
+    int size;  //todo (himanshuo): byte size of Transaction
     //todo (himanshuo): block_chain_configuration id
-    //todo (himanshuo): num input / num output?
-    //todo (himanshuo): lock time?
-    //todo (himanshuo): byte size of Transaction?
 
-    //todo (himanshuo): in and out are very different than bitcoin protocol. Good/Bad?
+
     //todo (himanshuo): Each input must have a cryptographic digital signature that unlocks the funds from the prior transaction. Only the person possessing the appropriate private key is able to create a satisfactory signature; this in effect ensures that funds can only be spent by their owners.
     ArrayList<Transaction> in;
     ArrayList<Transaction> out;
