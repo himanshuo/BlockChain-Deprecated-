@@ -21,12 +21,12 @@ public class Transaction implements Hashable {
 
 
     //todo (himanshuo): Each input must have a cryptographic digital signature that unlocks the funds from the prior transaction. Only the person possessing the appropriate private key is able to create a satisfactory signature; this in effect ensures that funds can only be spent by their owners.
-    ArrayList<Transaction> in;
-    ArrayList<Transaction> out;
+    ArrayList<InputTransaction> in;
+    ArrayList<OutputTransaction> out;
 
 
 
-    public Transaction(ArrayList<Transaction> in, ArrayList<Transaction> out) throws NoSuchAlgorithmException, IOException, Hash.UnknownByteConversionException {
+    public Transaction(ArrayList<InputTransaction> in, ArrayList<OutputTransaction> out) throws NoSuchAlgorithmException, IOException, Hash.UnknownByteConversionException {
         this.in = in;
         this.out = out;
 

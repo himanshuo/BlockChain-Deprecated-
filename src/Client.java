@@ -13,21 +13,41 @@ public class Client {
     //todo (himanshuo): actual ip address
     //todo (himanshuo): more durable client identification technique?
     String ipaddress;
+    String signature;
     //todo (himanshuo): better done via a bitmap?
     //todo (himanshuo): need some sort of init function which makes any new clients ledge up to date with entire history of ledgers
-    //todo (himanshuo): each client does have a linked list of all transactions. thus this needs to be a linked list instead of a arraylist
+    //todo (himanshuo): each client does have a linked list of all transactions. thus this needs to be a linked list instead of an arraylist
     ArrayList<Transaction> ledger = new ArrayList<Transaction>();
+    //todo (himanshuo): a separate linkedlist of pointers should exist pointing to this clients transactions
 
     public Client(){
         ipaddress = Internet.registerClient(this);
         coins = 0;
+        //todo (himanshuo): proper signature
+        signature = ipaddress;
     }
 
 
+    //todo (himanshuo): Genesis Block
+    //todo (himanshuo): Coinbase Transaction
     //todo (himanshuo): this shouldn't exist. A new client should start with 0 coins. Some initial value could be `transferred` to it.
     public Client(int x){
         this();
         coins = x;
+    }
+
+    private ArrayList<InputTransaction> buildInput(int amount){
+        ArrayList<InputTransaction> out = new ArrayList<InputTransaction>();
+        int curSum = 0;
+        //determine which Transactions I can output from
+        Transaction myMostRecentTransaction; //todo (himanshuo): requires coinbase transaction
+        for(int i = ledger.size()-1; i >= 0; i--){
+            Transaction curTransaction = ledger.get(i);
+            for(int j=0; j<curTransaction.out.size(); j++) {
+                if(curTransaction.out.get(j).)
+            }
+        }
+
     }
 
 
