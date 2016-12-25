@@ -4,6 +4,8 @@ import lib.ProofOfWork;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 /**
  * Created by himanshu on 12/5/16.
@@ -12,48 +14,127 @@ public class Client {
     int coins;
     //todo (himanshuo): actual ip address
     //todo (himanshuo): more durable client identification technique?
-    String ipaddress;
+    BitcoinAddress addr;
     String signature;
     //todo (himanshuo): better done via a bitmap?
     //todo (himanshuo): need some sort of init function which makes any new clients ledge up to date with entire history of ledgers
     //todo (himanshuo): each client does have a linked list of all transactions. thus this needs to be a linked list instead of an arraylist
     ArrayList<Transaction> ledger = new ArrayList<Transaction>();
+    ArrayList<Transaction> myTransactionQueue = new ArrayList<Transaction>();
     //todo (himanshuo): a separate linkedlist of pointers should exist pointing to this clients transactions
 
-    public Client(){
-        ipaddress = Internet.registerClient(this);
+    int coins;
+
+    private Client(){
+        addr = Internet.registerClient(this);
         coins = 0;
         //todo (himanshuo): proper signature
-        signature = ipaddress;
+        signature = addr.ipaddress;
     }
 
 
     //todo (himanshuo): Genesis Block
-    //todo (himanshuo): Coinbase Transaction
     //todo (himanshuo): this shouldn't exist. A new client should start with 0 coins. Some initial value could be `transferred` to it.
     public Client(int x){
         this();
-        coins = x;
+        try {
+            //this is a first attempt at a coinbase implementation
+            OutputTransaction ot = new OutputTransaction(x, this.addr);
+            ArrayList<OutputTransaction> otList = new ArrayList<OutputTransaction>();
+            otList.add(ot);
+            Transaction coinbase = new Transaction(new ArrayList<InputTransaction>(), otList);
+            myTransactionQueue.add(coinbase);
+            coins = x;
+        } catch(Exception e) {
+            System.out.println(e.fillInStackTrace());
+        }
+
     }
 
-    private ArrayList<InputTransaction> buildInput(int amount){
-        ArrayList<InputTransaction> out = new ArrayList<InputTransaction>();
-        int curSum = 0;
-        //determine which Transactions I can output from
-        Transaction myMostRecentTransaction; //todo (himanshuo): requires coinbase transaction
-        for(int i = ledger.size()-1; i >= 0; i--){
-            Transaction curTransaction = ledger.get(i);
-            for(int j=0; j<curTransaction.out.size(); j++) {
-                if(curTransaction.out.get(j).)
-            }
+
+    private boolean validQueueMember(Transaction t){
+        for(OutputTransaction ot: t.out){
+            if(ot.recipient.equals(this.addr)) return true;
         }
+        return false;
+    }
+
+    // todo (himanshuo): A lot of this helper functions can be put together as static functions in some helper class
+    private int valueOfTransactions(ArrayList<Transaction> transactions){
+        int out =0;
+        for(Transaction t: transactions){
+            out += getAmountToMeFromTransaction(t);
+        }
+        return out;
+    }
+
+    private int getAmountToMeFromTransaction(Transaction t){
+        for(OutputTransaction ot: t.out){
+            if(ot.recipient.equals(this.addr)) return ot.value;
+        }
+    }
+
+    private ArrayList<Transaction> getInputTransactions(int amount) {
+        //The below is NOT true for the current implementation. I'm keeping it here for the sake of quick reference for emphemeral coding.
+        //KEY IDEA: A client does not care about all the transactions. Only care about the bottom leaf nodes, where the ledger has endings.
+        // filter(ledger,
+        //      t =>
+        //          t.in has InputTransaction such that InputTransaction.signature = this.signature &&
+        //          t.out = []
+        //
+        // )
+
+        ArrayList<Transaction> out = new ArrayList<Transaction>();
+        int total = 0;
+        Iterator<Transaction> iter = myTransactionQueue.iterator();
+        while(total < amount) {
+            Transaction cur = iter.next();  //todo (himanshuo): handle iter.hasNext() is false
+            assert validQueueMember(cur);
+            int curAmount = getAmountToMeFromTransaction(cur);
+            out.add(cur);
+            total += curAmount;
+        }
+        return out;
+    }
+
+    //todo (himanshuo): handle giving value to yourself when there is extra remaining
+    //todo (himanshuo):
+    private ArrayList<InputTransaction> buildInput(int amount, BitcoinAddress){
+        ArrayList<InputTransaction> out = new ArrayList<InputTransaction>();
+        ArrayList<Transaction> inputTransactions = getInputTransactions(amount);
+        for(int i =0; i<inputTransactions.size(); i++){
+            Transaction cur = inputTransactions.get(i);
+            byte [] hash = cur.hash;
+            int n = i;
+            String signature = this.signature;
+            String publicKey = "";
+            out.add(new InputTransaction(
+                    hash,
+                    i,
+                    signature,
+                    publicKey
+            ));
+        }
+
+    }
+
+
+
+    private ArrayList<InputTransaction> buildOutput(int amount, BitcoinAddress recipient){
+        ArrayList<InputTransaction> out = new ArrayList<InputTransaction>();
 
     }
 
 
     public boolean send(Client toSend, int amount){
         try {
-            Transaction t = new Transaction(this, toSend, amount);
+            ArrayList<Transaction> transactionsToUse = getInputTransactions(amount);
+            assert
+            ArrayList<InputTransaction> inputs = buildInput(amount);
+
+
+            //todo (himanshuo): build output transaction list
+            Transaction t = new Transaction(, buildOutput(amount, recipient));
             if(t.submit()){
                 toSend.coins += amount;
                 this.coins -= amount;

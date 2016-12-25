@@ -27,6 +27,8 @@ public class Transaction implements Hashable {
 
 
     public Transaction(ArrayList<InputTransaction> in, ArrayList<OutputTransaction> out) throws NoSuchAlgorithmException, IOException, Hash.UnknownByteConversionException {
+        assert in != null;
+        assert in != null;
         this.in = in;
         this.out = out;
 

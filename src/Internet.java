@@ -19,9 +19,9 @@ public class Internet {
 //    }
 
 
-    public static String registerClient(Client c){
+    public static BitcoinAddress registerClient(Client c){
         clients.add(c);
-        return String.valueOf((int)(Math.random() * 10000));
+        return new BitcoinAddress(String.valueOf((int)(Math.random() * 10000)));
     }
     public static ArrayList<Client> getClientList(){
         //shuffling makes it so that the order of retrievals is random
