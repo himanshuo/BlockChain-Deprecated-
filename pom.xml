@@ -30,7 +30,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>opensource.App</mainClass>
+							<mainClass>opensource.Runner</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

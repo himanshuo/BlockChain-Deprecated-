@@ -51,7 +51,7 @@ public class Transaction implements Hashable {
         //todo (himanshuo): get validations from others
         //todo (himanshuo): accept if >50% of others say its good
         //todo (himanshuo): if success, broadcast to others
-        if(this.receiver.validate(this)){
+        if(true){
             broadcast(this);
             return true;
         }
@@ -64,6 +64,12 @@ public class Transaction implements Hashable {
                 this.in.toString(),
                 this.out.toString()
                 );
+    }
+
+    public boolean equals(Transaction o){
+        if(this == o) return true;
+        if(this.hash == o.hash) return true;
+        return false;
     }
 
     public byte[] getBytes(){

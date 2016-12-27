@@ -7,7 +7,7 @@ import java.util.Random;
  */
 public class Internet {
     //this is a fake class that mocks the internet for BlockChain
-    private static ArrayList<Client> clients = new ArrayList<>();
+    private static ArrayList<Client> clients = new ArrayList<Client>();
     private Internet(){}    // prevent anyone from creating another internet
 
 //    private static Internet singleInstance;
