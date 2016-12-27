@@ -1,6 +1,8 @@
 # BlockChain
 Generic Open Source Block Chain
 
+[![Build Status](https://travis-ci.org/himanshuo/BlockChain.svg?branch=master)](https://travis-ci.org/himanshuo/BlockChain)
+
 
 # Setup Instructions
 
