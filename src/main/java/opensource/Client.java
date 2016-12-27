@@ -99,7 +99,7 @@ public class Client {
 
     //todo (himanshuo): handle giving value to yourself when there is extra remaining
     //todo (himanshuo):
-    private ArrayList<InputTransaction> buildInput(int amount, BitcoinAddress){
+    private ArrayList<InputTransaction> buildInput(int amount, BitcoinAddress ba){
         ArrayList<InputTransaction> out = new ArrayList<InputTransaction>();
         ArrayList<Transaction> inputTransactions = getInputTransactions(amount);
         for(int i =0; i<inputTransactions.size(); i++){
@@ -115,7 +115,6 @@ public class Client {
                     publicKey
             ));
         }
-
     }
 
 
