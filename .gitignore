@@ -15,6 +15,7 @@ hs_err_pid*
 # IDE
 *.iml
 .idea/
-
+*.ipr
+*.iws
 
 target/
