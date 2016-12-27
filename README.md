@@ -2,12 +2,24 @@
 Generic Open Source Block Chain
 
 
+# Setup Instructions
+
+1. This Repository uses Maven as a build management tool. Install it at http://maven.apache.org/
+2. To build the code
+
+    mvn package
+
+3. To Run the code
+
+    java -jar target/BlockChain-1.0-SNAPSHOT.jar
+
+
 
 
 # Requirements
 
 # TODO
-* todo Genesis Block 
+* todo Genesis Block
 * Coinbase Transaction
 * Organize src code into modules
 * Use original paper (https://bitcoin.org/bitcoin.pdf) and online article (http://www.michaelnielsen.org/ddi/how-the-bitcoin-protocol-actually-works/) to determine requirements
@@ -24,4 +36,4 @@ Generic Open Source Block Chain
 * config database for custom version of blockchain?
 * Smart Contracts
 * Rename BlockChain -> MyBlockChain?
-* SideChain 
+* SideChain
