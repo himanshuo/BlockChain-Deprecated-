@@ -45,7 +45,7 @@ public class Client {
             myTransactionQueue.add(coinbase);
             coins = x;
         } catch(Exception e) {
-            System.out.println(e.fillInStackTrace());
+            e.printStackTrace();
         }
 
     }

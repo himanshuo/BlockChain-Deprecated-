@@ -4,8 +4,6 @@ import lib.Hashable;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.DoubleSummaryStatistics;
-import java.util.Map;
 
 /**
  * Created by himanshu on 11/17/16.
@@ -59,11 +57,11 @@ public class Transaction implements Hashable {
     }
 
     public String toString(){
-        return String.format("%s: %s->%s",
-                this.hash,
+
+        return String.format("%s->%s",
                 this.in.toString(),
                 this.out.toString()
-                );
+        );
     }
 
     public boolean equals(Transaction o){
