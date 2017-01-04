@@ -31,7 +31,7 @@ Generic Open Source Block Chain
 * Internet.java should be replaced with a real internet
 * A more normal interface to the Internet for broadcasting messages like this should be adopted. Some custom protocol built atop TCP and/or Thrift?
 * store hash instead of complete transaction in ledgers
-* Erlang
+* Erlang - https://github.com/pinterest/elixir-thrift
 * Thrift
 * GUI client
 * config file for custom version of blockchain
