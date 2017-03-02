@@ -1,4 +1,4 @@
-package lib;
+package com.opensource.app.lib;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;

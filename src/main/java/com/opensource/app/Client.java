@@ -1,3 +1,5 @@
+package com.opensource.app;
+
 import lib.Hash;
 import lib.ProofOfWork;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package lib;
+package com.opensource.app.lib;
 
 import org.junit.Test;
 

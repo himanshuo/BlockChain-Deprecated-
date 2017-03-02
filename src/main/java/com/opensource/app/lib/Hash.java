@@ -1,5 +1,4 @@
-
-package lib;
+package com.opensource.app.lib;
 
 import java.io.*;
 import java.security.MessageDigest;

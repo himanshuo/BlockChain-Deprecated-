@@ -1,4 +1,4 @@
-package lib;
+package com.opensource.app.lib;
 
 /**
  * Created by himanshu on 12/10/16.

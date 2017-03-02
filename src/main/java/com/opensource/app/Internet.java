@@ -1,3 +1,5 @@
+package com.opensource.app;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
