@@ -30,6 +30,7 @@ Generic Open Source Block Chain
 * dockerize
 * Internet.java should be replaced with a real internet
 * A more normal interface to the Internet for broadcasting messages like this should be adopted. Some custom protocol built atop TCP and/or Thrift?
+* http://escoffier.me/vertx-hol/
 * store hash instead of complete transaction in ledgers
 * Erlang - https://github.com/pinterest/elixir-thrift
 * Thrift
