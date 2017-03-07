@@ -111,7 +111,7 @@ public class Client {
     }
 
 
-    private ArrayList<InputTransaction> buildInput(int amount, ArrayList<OutputTransaction> outputs) throws InsufficientFundsException{
+    private ArrayList<InputTransaction> buildInput(int amount, ArrayList<OutputTransaction> outputs) throws InsufficientFundsException {
         ArrayList<InputTransaction> out = new ArrayList<InputTransaction>();
         ArrayList<Transaction> inputTransactions = new ArrayList<Transaction>();
         int inputValue = getInputTransactions(amount, inputTransactions);
@@ -119,7 +119,7 @@ public class Client {
 
         //todo (himanshuo): handle value of inputTransaction is too high - cut last transaction into 2
 
-        for(int i =0; i<inputTransactions.size(); i++){
+        for(int i = 0; i<inputTransactions.size(); i++) {
             Transaction cur = inputTransactions.get(i);
             out.add(buildInputTransactionFromTransaction(cur, i));
         }
@@ -198,7 +198,6 @@ public class Client {
                 }
             }
         }
-
 
 
         //todo (himanshuo): do I know 'in' sum in hash version?
