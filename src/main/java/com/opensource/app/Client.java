@@ -52,16 +52,16 @@ public class Client {
     }
 
 
-    private boolean validQueueMember(Transaction t){
-        for(OutputTransaction ot: t.out){
+    private boolean validQueueMember(Transaction t) {
+        for(OutputTransaction ot: t.out) {
             if(ot.recipient.equals(this.addr)) return true;
         }
         return false;
     }
 
-    // todo (himanshuo): A lot of this helper functions can be put together as static functions in some helper class
+    // todo (himanshuo): A lot of these helper functions can be put together as static functions in some helper class in lib
     private int valueOfTransactions(ArrayList<Transaction> transactions){
-        int out =0;
+        int out = 0;
         for(Transaction t: transactions){
             out += getAmountToMeFromTransaction(t);
         }
@@ -77,7 +77,7 @@ public class Client {
     }
 
     private int getInputTransactions(int amount, ArrayList<Transaction> inputTransactions) {
-        //The below is NOT true for the current implementation. I'm keeping it here for the sake of quick reference for emphemeral coding.
+        //The below is NOT true for the current implementation. I'm keeping it here for the sake of quick reference for ephemeral coding.
         //KEY IDEA: A client does not care about all the transactions. Only care about the bottom leaf nodes, where the ledger has endings.
         // filter(ledger,
         //      t =>
@@ -148,17 +148,7 @@ public class Client {
                 this.coins -= amount;
                 //todo (himanshuo): remove all inputs of t from queue
             }
-        // todo (himanshuo): handle exceptions in different ways, or consolidate them
-        } catch (NoSuchAlgorithmException e){
-            System.out.println(e.fillInStackTrace());
-            return false;
-        } catch (IOException e){
-            System.out.println(e.fillInStackTrace());
-            return false;
-        } catch (Hash.UnknownByteConversionException e){
-            System.out.println(e.fillInStackTrace());
-            return false;
-        } catch (InsufficientFundsException e){
+      } catch (NoSuchAlgorithmException | IOException | Hash.UnknownByteConversionException | InsufficientFundsException   e){
             System.out.println(e.fillInStackTrace());
             return false;
         }
