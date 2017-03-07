@@ -5,7 +5,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import lib.Hash;
+import com.opensource.app.lib.Hash;
 /**
  * Created by himanshu on 12/8/16.
  */

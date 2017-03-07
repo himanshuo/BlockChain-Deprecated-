@@ -32,7 +32,6 @@ public class ProofOfWork {
         // Each element in Hash.hash is 8 bits.
 
         // Hash.hash has total of 32 bytes -> 256 bits, thus max difficulty can be 256/16 = 16
-        //
 
 
         for(int nonce = 4250; nonce < MAX_NONCE ; nonce++){

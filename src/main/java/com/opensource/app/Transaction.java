@@ -1,7 +1,7 @@
 package com.opensource.app;
 
-import lib.Hash;
-import lib.Hashable;
+import com.opensource.app.lib.Hash;
+import com.opensource.app.lib.Hashable;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;

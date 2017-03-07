@@ -1,7 +1,7 @@
 package com.opensource.app;
 
-import lib.Hash;
-import lib.ProofOfWork;
+import com.opensource.app.lib.Hash;
+import com.opensource.app.lib.ProofOfWork;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class Client {
     //todo (himanshuo): a separate linkedlist of pointers should exist pointing to this clients transactions
 
 
-    private Client(){
+    private Client() {
         addr = Internet.registerClient(this);
         coins = 0;
         //todo (himanshuo): proper signature
@@ -36,7 +36,7 @@ public class Client {
 
     //todo (himanshuo): Genesis Block
     //todo (himanshuo): this shouldn't exist. A new client should start with 0 coins. Some initial value could be `transferred` to it.
-    public Client(int x){
+    public Client(int x) {
         this();
         try {
             //this is a first attempt at a coinbase implementation
@@ -49,7 +49,6 @@ public class Client {
         } catch(Exception e) {
             e.printStackTrace();
         }
-
     }
 
 
