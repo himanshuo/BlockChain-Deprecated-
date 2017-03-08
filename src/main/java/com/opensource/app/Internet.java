@@ -21,7 +21,8 @@ public class Internet {
 //    }
 
 
-    public static BitcoinAddress registerClient(Client c){
+    public static BitcoinAddress registerClient(Client c, ArrayList<Transaction> ledger){
+        catchUpLedger(ledger);
         clients.add(c);
         return new BitcoinAddress(String.valueOf((int)(Math.random() * 10000)));
     }
@@ -34,5 +35,39 @@ public class Internet {
 
     public static void reset(){
         clients.clear();
+    }
+
+    public static boolean verify(Transaction t){
+      int minRequiredValidations = clients.size()/2+1;
+      int curValidations = 0;
+      ArrayList<Client> hasNotValidated = new ArrayList<Client>(clients);
+      Collections.shuffle(hasNotValidated);
+      for(int i = 0; i < hasNotValidated.size(); i++) {
+        boolean isValid = hasNotValidated.get(i).validate(t);
+        if(isValid) {
+          System.out.println("VALID");
+          curValidations++;
+          if(curValidations == minRequiredValidations) return true;
+        } else {
+          System.out.println("NOT VALID");
+        }
+      }
+      return false;
+    }
+
+    public static void catchUpLedger(ArrayList<Transaction> ledger) {
+      if(clients.size() == 0) return;
+      int clientNumber = (int)(Math.random() * (clients.size()-1));
+      Client client = clients.get(clientNumber);
+      for(int i = 0; i < client.ledger.size(); i++) {
+        ledger.add(client.ledger.get(i));
+      }
+    }
+
+    public static void broadcast(Transaction t) {
+      // todo (himanshuo): can only broadcast if transaction t has been validated
+      for(Client c: clients){
+          c.ledger.add(t);
+      }
     }
 }

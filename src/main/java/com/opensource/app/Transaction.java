@@ -37,27 +37,6 @@ public class Transaction implements Hashable {
     }
 
 
-    public void broadcast(Transaction t){
-        //send to internet so others can pick up
-        for(Client c: Internet.getClientList()){
-            c.ledger.add(t);
-        }
-    }
-
-
-    public boolean submit(){
-        //todo (himanshuo): validate from own ledger
-
-        //todo (himanshuo): get validations from others
-        //todo (himanshuo): accept if >50% of others say its good
-        //todo (himanshuo): if success, broadcast to others
-        if(true){
-            broadcast(this);
-            return true;
-        }
-        return false;
-    }
-
     public String toString(){
 
         return String.format("%s->%s",

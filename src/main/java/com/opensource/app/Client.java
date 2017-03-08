@@ -27,7 +27,7 @@ public class Client {
 
 
     private Client() {
-        addr = Internet.registerClient(this);
+        addr = Internet.registerClient(this, ledger);
         coins = 0;
         //todo (himanshuo): proper signature
         signature = addr.ipaddress;
@@ -44,11 +44,22 @@ public class Client {
             ArrayList<OutputTransaction> otList = new ArrayList<OutputTransaction>();
             otList.add(ot);
             Transaction coinbase = new Transaction(new ArrayList<InputTransaction>(), otList);
+            System.out.printf("Client %s has coinbase of %s\n", this.addr.ipaddress, coinbase.hash);
+            broadcast(coinbase);
             myTransactionQueue.add(coinbase);
             coins = x;
+            System.out.printf("Client %s started: %s \n", this.addr.ipaddress, ledgerString());
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public String ledgerString() {
+      String out = "";
+      for(int i =0; i< ledger.size(); i++){
+        out += "" + (ledger.get(i).hash) + "  ->  ";
+      }
+      return out;
     }
 
 
@@ -134,6 +145,24 @@ public class Client {
         return out;
     }
 
+    public void broadcast(Transaction t){
+        //send to internet so others can pick up
+        Internet.broadcast(t);
+    }
+
+    public boolean submit(Transaction t) {
+        //todo (himanshuo): validate from own ledger
+
+        //todo (himanshuo): get validations from others
+        //todo (himanshuo): accept if >50% of others say its good
+        //todo (himanshuo): if success, broadcast to others
+        if(Internet.verify(t)){
+            broadcast(t);
+            return true;
+        }
+        return false;
+    }
+
     //todo (himanshuo): allow for list of recipients
     public boolean send(int amount, Client recipient){
         try {
@@ -143,10 +172,13 @@ public class Client {
             ArrayList<InputTransaction> inputs = buildInput(amount, outputs);
 
             Transaction t = new Transaction(inputs, outputs);
-            if(t.submit()){
+            if(submit(t)){
                 recipient.coins += amount;
                 this.coins -= amount;
                 //todo (himanshuo): remove all inputs of t from queue
+                System.out.printf("SUCCESS: %s -%s-> %s\n", this.addr.ipaddress, amount, recipient.addr.ipaddress);
+            } else {
+                System.out.printf("FAIL: %s -%s-> %s\n", this.addr.ipaddress, amount, recipient.addr.ipaddress);
             }
       } catch (NoSuchAlgorithmException | IOException | Hash.UnknownByteConversionException | InsufficientFundsException   e){
             System.out.println(e.fillInStackTrace());
@@ -155,10 +187,23 @@ public class Client {
         return true;
     }
 
+    private boolean equalHash(byte [] hashOne, byte[] hashTwo) {
+      if(hashOne == hashTwo) return true;
+      if(hashOne==null ^ hashTwo==null) return false;
+      if(hashOne.length != hashTwo.length) return false;
+      for(int i =0; i< hashOne.length; i++) {
+        if(hashOne[i] != hashTwo[i]) return false;
+      }
+      return true;
+    }
+
     public Transaction getTransactionFromHash(byte[] hash) {
+        String ledgerHashs = "";
         for(Transaction t: this.ledger){
-            if(t.hash == hash) return t;
+            ledgerHashs += "" + t.hash + "  ->  ";
+            if(equalHash(t.hash, hash)) return t;
         }
+        System.out.printf("ledger: %s, looking for: %s\n", ledgerHashs, hash);
         return null;
     }
 
@@ -184,9 +229,12 @@ public class Client {
             outSum += t.value;
             baList.add(t.recipient);
         }
+        System.out.printf("OutSum is %d\n", outSum);
 
         for(InputTransaction t : transaction.in){
             Transaction fromLedger = getTransactionFromHash(t.hash);
+            System.out.printf("t.hash is %s\n", t.hash);
+
             // 'in' transactions exist in ledger with correct hash
             if(fromLedger == null || !fromLedger.equals(transaction)) {
                 return false;
@@ -198,6 +246,8 @@ public class Client {
                 }
             }
         }
+
+        System.out.printf("InSum is %d\n", inSum);
 
 
         //todo (himanshuo): do I know 'in' sum in hash version?
