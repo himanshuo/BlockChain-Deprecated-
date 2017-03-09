@@ -111,5 +111,4 @@ public class BlockChainTest {
         assertEquals(2, a.ledger.size());
     }
 
-
 }
