@@ -19,7 +19,7 @@
 * config file for custom version of blockchain
 * store hash instead of complete transaction in ledgers
 
-### Future Work 
+### Future Work
 * Use original paper (https://bitcoin.org/bitcoin.pdf) and online article (http://www.michaelnielsen.org/ddi/how-the-bitcoin-protocol-actually-works/) to determine requirements
 * dockerize
 * Internet.java should be replaced with a real internet

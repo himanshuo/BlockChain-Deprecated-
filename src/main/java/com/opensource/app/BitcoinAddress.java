@@ -5,7 +5,6 @@ package com.opensource.app;
  */
 public class BitcoinAddress {
     //todo (himanshuo): do you add something else to bitcoin address?
-    //todo (himanshuo): add equals() method
     String ipaddress;
     public BitcoinAddress(String ip) {
         this.ipaddress = ip;
@@ -15,9 +14,7 @@ public class BitcoinAddress {
       if(this == obj) return true;
       if(obj instanceof BitcoinAddress) {
         BitcoinAddress other = (BitcoinAddress)obj;
-        if(this.ipaddress.equals(other.ipaddress)) {
-          return true;
-        }
+        return this.ipaddress.equals(other.ipaddress);
       }
       return false;
     }
