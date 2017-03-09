@@ -14,4 +14,8 @@ public class InputTransaction {
         signature=s;
         publicKey=p;
     }
+
+    public String toString(){
+      return "" + hash;
+    }
 }

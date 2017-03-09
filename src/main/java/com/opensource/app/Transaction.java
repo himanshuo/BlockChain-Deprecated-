@@ -47,8 +47,19 @@ public class Transaction implements Hashable {
 
     public boolean equals(Transaction o){
         if(this == o) return true;
-        if(this.hash == o.hash) return true;
+        if(equalHash(this.hash, o.hash)) return true;
         return false;
+    }
+
+    // todo (himanshuo): move this out of here to some Hash class or Ledger class
+    private boolean equalHash(byte[] one, byte[] two) {
+      if((one == null) ^ (two == null)) return false;
+      if(one == null && two == null) return true;
+      if(one.length != two.length) return false;
+      for(int i =0; i< two.length; i++) {
+        if(one[i] != two[i]) return false;
+      }
+      return true;
     }
 
     public byte[] getBytes(){

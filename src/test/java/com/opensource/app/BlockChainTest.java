@@ -1,6 +1,5 @@
 package com.opensource.app;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,13 +9,9 @@ public class BlockChainTest {
 
   @Before
   public void before(){
-
+    Internet.reset();
   }
 
-  @After
-  public void after(){
-      Internet.reset();
-  }
 
   @Test
   public void testBlockChain(){
@@ -29,13 +24,10 @@ public class BlockChainTest {
     assertEquals("B has invalid number of coins", 5, b.coins);
     assertEquals("C has invalid number of coins", 1, c.coins);
 
-    a.send(3,b);
-
-    a.send(2,b);
-
-    c.send(1,b);
-
-    b.send(3,a);
+    assertTrue(a.send(3,b));
+    assertTrue(a.send(2,b));
+    assertTrue(c.send(1,b));
+    assertTrue(b.send(3,a));
 
     assertEquals("A has invalid number of coins post sending", 4, a.coins);
     assertEquals("B has invalid number of coins post sending", 8, b.coins);
@@ -43,9 +35,9 @@ public class BlockChainTest {
 
 
     //each knows about the transaction history
-    assertEquals("A.ledger != B.ledger", a.ledger.toString(), b.ledger.toString());
-    assertEquals("A.ledger != C.ledger", a.ledger.toString(), c.ledger.toString());
-    assertEquals("B.ledger != C.ledger", b.ledger.toString(), c.ledger.toString());
+    TestUtils.assertConsistentLedger(a.ledger, b.ledger);
+    TestUtils.assertConsistentLedger(b.ledger, c.ledger);
+    TestUtils.assertConsistentLedger(a.ledger, c.ledger);
   }
 
 
@@ -63,14 +55,11 @@ public class BlockChainTest {
         assertEquals(3, a.coins);
         assertEquals(8, b.coins);
 
-        assertEquals(1, a.ledger.size());
-        assertEquals(a.ledger.get(0).hash, b.ledger.get(0).hash);
-        assertEquals(a.ledger.get(0).hash, b.ledger.get(0).hash);
-        // assertEquals(3, a.ledger.get(0).amount);
+        TestUtils.assertConsistentLedger(a.ledger, b.ledger);
     }
 
     @Test
-    public void testSendDouble(){
+    public void testSendDouble() {
         Client a = new Client(6);
         Client b = new Client(5);
 
@@ -81,26 +70,45 @@ public class BlockChainTest {
 
         assertEquals(3, a.coins);
         assertEquals(8, b.coins);
-
-        assertEquals(1, a.ledger.size());
-        assertEquals(a.ledger.get(0).hash, b.ledger.get(0).hash);
-        assertEquals(a.ledger.get(0).hash, b.ledger.get(0).hash);
-        // assertEquals(3, a.ledger.get(0).coins);
+        TestUtils.assertConsistentLedger(a.ledger, b.ledger);
 
         assertTrue(b.send(2, a));
 
         assertEquals(5, a.coins);
         assertEquals(6, b.coins);
+        TestUtils.assertConsistentLedger(a.ledger, b.ledger);
+    }
 
+    @Test
+    public void testCannotSendWhatDoNotHave() {
+        Client a = new Client(6);
+        Client b = new Client(5);
+
+        assertEquals(6, a.coins);
+        assertEquals(5, b.coins);
+
+        assertFalse(a.send(7, b));
+
+        assertEquals(6, a.coins);
+        assertEquals(5, b.coins);
+        TestUtils.assertConsistentLedger(a.ledger, b.ledger);
         assertEquals(2, a.ledger.size());
+    }
 
-        assertEquals(a.ledger.get(0).hash, b.ledger.get(0).hash);
-        assertEquals(a.ledger.get(0).hash, b.ledger.get(0).hash);
-        assertEquals(a.ledger.get(1).hash, b.ledger.get(1).hash);
-        assertEquals(a.ledger.get(1).hash, b.ledger.get(1).hash);
+    @Test
+    public void testCannotLessThanZero() {
+        Client a = new Client(6);
+        Client b = new Client(5);
 
-        // assertEquals(3, a.ledger.get(0).hash);
-        // assertEquals(2, a.ledger.get(1).hash);
+        assertEquals(6, a.coins);
+        assertEquals(5, b.coins);
+
+        assertFalse(a.send(-2, b));
+
+        assertEquals(6, a.coins);
+        assertEquals(5, b.coins);
+        TestUtils.assertConsistentLedger(a.ledger, b.ledger);
+        assertEquals(2, a.ledger.size());
     }
 
 

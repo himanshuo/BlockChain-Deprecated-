@@ -12,13 +12,6 @@ public class TransactionTest {
       Internet.reset();
   }
 
-  void assertEqualHash(byte[] expected, byte[] actual) {
-    if(expected == null ^ actual == null) fail();
-    assertEquals(expected.length, actual.length);
-    for(int i =0; i< expected.length; i++) {
-      assertEquals(expected[i], actual[i]);
-    }
-  }
 
   // @Test
   // public void testVerifyDiffPointersToSameTransaction(){
@@ -36,21 +29,26 @@ public class TransactionTest {
   //   }
   // }
 
+  // todo (himanshuo): test client send method in a client test class
 
   @Test
   public void testTransactionInTwoLedgersHaveSameHash(){
     Client a = new Client(6);
     Client b = new Client(3);
-    a.send(3, b);
-    assertConsistentLedger(a.ledger, b.ledger);
+    assertTrue(a.send(3, b));
+    TestUtils.assertConsistentLedger(a.ledger, b.ledger);
+    assertEquals(3, a.coins);
+    assertEquals(6, b.coins);
   }
 
-  // @Test
-  // public void testTransactionInTwoLedgersHaveSameHashReverse(){
-  //   Client a = new Client(6);
-  //   Client b = new Client(3);
-  //   b.send(3, a);
-  //   assertEqualHash(a.ledger.get(0).hash, b.ledger.get(0).hash);
-  // }
+  @Test
+  public void testTransactionInTwoLedgersHaveSameHashReverse(){
+    Client a = new Client(6);
+    Client b = new Client(3);
+    assertTrue(b.send(3, a));
+    TestUtils.assertConsistentLedger(a.ledger, b.ledger);
+    assertEquals(9, a.coins);
+    assertEquals(0, b.coins);
+  }
 
 }

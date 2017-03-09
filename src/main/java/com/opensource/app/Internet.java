@@ -45,11 +45,8 @@ public class Internet {
       for(int i = 0; i < hasNotValidated.size(); i++) {
         boolean isValid = hasNotValidated.get(i).validate(t);
         if(isValid) {
-          System.out.println("VALID");
           curValidations++;
           if(curValidations == minRequiredValidations) return true;
-        } else {
-          System.out.println("NOT VALID");
         }
       }
       return false;

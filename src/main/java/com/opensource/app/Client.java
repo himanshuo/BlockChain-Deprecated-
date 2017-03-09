@@ -39,16 +39,16 @@ public class Client {
     public Client(int x) {
         this();
         try {
+            // todo (himanshuo): Transaction interface with Transaction class and Coinbase class?
+
             //this is a first attempt at a coinbase implementation
             OutputTransaction ot = new OutputTransaction(x, this.addr);
             ArrayList<OutputTransaction> otList = new ArrayList<OutputTransaction>();
             otList.add(ot);
             Transaction coinbase = new Transaction(new ArrayList<InputTransaction>(), otList);
-            System.out.printf("Client %s has coinbase of %s\n", this.addr.ipaddress, coinbase.hash);
             broadcast(coinbase);
             myTransactionQueue.add(coinbase);
             coins = x;
-            System.out.printf("Client %s started: %s \n", this.addr.ipaddress, ledgerString());
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -129,10 +129,16 @@ public class Client {
         if(inputValue < amount) throw new InsufficientFundsException();
 
         //todo (himanshuo): handle value of inputTransaction is too high - cut last transaction into 2
-
+        int valueAdded = 0;
         for(int i = 0; i<inputTransactions.size(); i++) {
             Transaction cur = inputTransactions.get(i);
+            valueAdded += getAmountToMeFromTransaction(cur);
             out.add(buildInputTransactionFromTransaction(cur, i));
+        }
+        if(valueAdded > amount) {
+          //add a new output transaction pointing to self
+          OutputTransaction outputToSelf = new OutputTransaction(valueAdded - amount, this.addr);
+          outputs.add(outputToSelf);
         }
         return out;
     }
@@ -165,6 +171,8 @@ public class Client {
 
     //todo (himanshuo): allow for list of recipients
     public boolean send(int amount, Client recipient){
+      if(amount > this.coins || amount < 0) return false;
+
         try {
 
             ArrayList<OutputTransaction> outputs = buildOutput(amount, recipient);
@@ -172,19 +180,20 @@ public class Client {
             ArrayList<InputTransaction> inputs = buildInput(amount, outputs);
 
             Transaction t = new Transaction(inputs, outputs);
-            if(submit(t)){
+            if(submit(t)) {
                 recipient.coins += amount;
                 this.coins -= amount;
+
                 //todo (himanshuo): remove all inputs of t from queue
-                System.out.printf("SUCCESS: %s -%s-> %s\n", this.addr.ipaddress, amount, recipient.addr.ipaddress);
+                return true;
             } else {
-                System.out.printf("FAIL: %s -%s-> %s\n", this.addr.ipaddress, amount, recipient.addr.ipaddress);
+                return false;
             }
       } catch (NoSuchAlgorithmException | IOException | Hash.UnknownByteConversionException | InsufficientFundsException   e){
             System.out.println(e.fillInStackTrace());
             return false;
         }
-        return true;
+
     }
 
     private boolean equalHash(byte [] hashOne, byte[] hashTwo) {
@@ -198,12 +207,9 @@ public class Client {
     }
 
     public Transaction getTransactionFromHash(byte[] hash) {
-        String ledgerHashs = "";
         for(Transaction t: this.ledger){
-            ledgerHashs += "" + t.hash + "  ->  ";
             if(equalHash(t.hash, hash)) return t;
         }
-        System.out.printf("ledger: %s, looking for: %s\n", ledgerHashs, hash);
         return null;
     }
 
@@ -222,32 +228,25 @@ public class Client {
                   2.1) lottery system of giving reward only to 1st client which validates (Internet randomization helps with this)
         */
         //todo (himanshuo) : Verifications should be registered
-
         int inSum = 0, outSum = 0;
         ArrayList<BitcoinAddress> baList = new ArrayList<BitcoinAddress>();
         for(OutputTransaction t : transaction.out){
             outSum += t.value;
             baList.add(t.recipient);
         }
-        System.out.printf("OutSum is %d\n", outSum);
 
-        for(InputTransaction t : transaction.in){
+        for(InputTransaction t : transaction.in) {
             Transaction fromLedger = getTransactionFromHash(t.hash);
-            System.out.printf("t.hash is %s\n", t.hash);
-
             // 'in' transactions exist in ledger with correct hash
-            if(fromLedger == null || !fromLedger.equals(transaction)) {
+            if(fromLedger == null || !equalHash(fromLedger.hash, t.hash)) {
                 return false;
             }
-            //get value that this input is sending to any one of the outputs
-            for(OutputTransaction ot: fromLedger.out){
-                if(baList.contains(ot.recipient)){
-                    inSum += ot.value;
-                }
+
+            // get value that this input is sending to any one of the outputs
+            for(OutputTransaction ot: fromLedger.out) {
+                inSum += ot.value;
             }
         }
-
-        System.out.printf("InSum is %d\n", inSum);
 
 
         //todo (himanshuo): do I know 'in' sum in hash version?
@@ -255,7 +254,7 @@ public class Client {
         if(outSum != inSum) return false;
 
         try {
-            ProofOfWork.SHA256(transaction.toString(),2);
+            ProofOfWork.SHA256(transaction.toString(), 2);
         } catch (Exception e){
             //todo (himanshuo): perhaps some exceptions should bleed through?
             System.out.println(e.fillInStackTrace());

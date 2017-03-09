@@ -10,4 +10,15 @@ public class BitcoinAddress {
     public BitcoinAddress(String ip) {
         this.ipaddress = ip;
     }
+
+    public boolean equals(Object obj) {
+      if(this == obj) return true;
+      if(obj instanceof BitcoinAddress) {
+        BitcoinAddress other = (BitcoinAddress)obj;
+        if(this.ipaddress.equals(other.ipaddress)) {
+          return true;
+        }
+      }
+      return false;
+    }
 }
