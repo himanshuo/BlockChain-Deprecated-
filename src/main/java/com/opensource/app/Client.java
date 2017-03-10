@@ -104,7 +104,7 @@ public class Client {
         LOGGER.log(Level.INFO, "GETTING INPUTS FOR NEW TRANSACTION. myTransactionQueue.size()=" + myTransactionQueue.size());
         while(total < amount) {
             if(iter.hasNext()) {
-              Transaction cur = iter.next();  //todo (himanshuo): handle iter.hasNext() is false
+              Transaction cur = iter.next();
               assert validQueueMember(cur);
               int curAmount = getAmountToMeFromTransaction(cur);
               inputTransactions.add(cur);
@@ -188,7 +188,12 @@ public class Client {
             if(submit(t)) {
                 recipient.coins += amount;
                 // todo (himanshuo): remove t.inputs from this.myTransactionQueue
-                // todo (himanshuo): add t.outputs to recipient.myTransactionQueue
+                for(InputTransaction inputTransaction: t.in) {
+                  Transaction toRemove = getTransactionFromHash(inputTransaction.hash);
+                  this.myTransactionQueue.remove(toRemove);
+                }
+                // todo (himanshuo): add t to recipient.myTransactionQueue
+                recipient.myTransactionQueue.add(t);
                 this.coins -= amount;
 
                 //todo (himanshuo): remove all inputs of t from queue
@@ -197,7 +202,7 @@ public class Client {
                 return false;
             }
       } catch (NoSuchAlgorithmException | IOException | Hash.UnknownByteConversionException | InsufficientFundsException   e){
-            LOGGER.log(Level.SEVERE, "Error", e.fillInStackTrace());
+            LOGGER.log(Level.SEVERE, e.toString(), e.fillInStackTrace());
             return false;
         }
 
@@ -264,7 +269,7 @@ public class Client {
             ProofOfWork.SHA256(transaction.toString(), 2);
         } catch (Exception e){
             //todo (himanshuo): perhaps some exceptions should bleed through?
-            LOGGER.log(Level.SEVERE, "Error", e.fillInStackTrace());
+            LOGGER.log(Level.SEVERE, e.toString(), e.fillInStackTrace());
             return false;
         }
 
