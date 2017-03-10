@@ -6,12 +6,14 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
-
+import java.util.logging.Logger;
+import java.util.logging.Level;
 /**
  * Created by himanshu on 12/5/16.
  */
 public class Client {
     public class InsufficientFundsException extends Exception{};
+    private static final Logger LOGGER = Logger.getLogger( Client.class.getName() );
 
     int coins;
     //todo (himanshuo): actual ip address
@@ -83,11 +85,11 @@ public class Client {
         for(OutputTransaction ot: t.out){
             if(ot.recipient.equals(this.addr)) return ot.value;
         }
-        System.out.printf("I DO NOT EXIST AS OUTPUT OF TRANSACTION %s\n", t.toString());
+        LOGGER.log( Level.INFO, "I DO NOT EXIST AS OUTPUT OF TRANSACTION", t.toString());
         return 0;
     }
 
-    private int getInputTransactions(int amount, ArrayList<Transaction> inputTransactions) {
+    private int getInputTransactions(int amount, ArrayList<Transaction> inputTransactions) throws InsufficientFundsException {
         //The below is NOT true for the current implementation. I'm keeping it here for the sake of quick reference for ephemeral coding.
         //KEY IDEA: A client does not care about all the transactions. Only care about the bottom leaf nodes, where the ledger has endings.
         // filter(ledger,
@@ -99,12 +101,17 @@ public class Client {
 
         int total = 0;
         Iterator<Transaction> iter = myTransactionQueue.iterator();
+        LOGGER.log(Level.INFO, "GETTING INPUTS FOR NEW TRANSACTION. myTransactionQueue.size()=" + myTransactionQueue.size());
         while(total < amount) {
-            Transaction cur = iter.next();  //todo (himanshuo): handle iter.hasNext() is false
-            assert validQueueMember(cur);
-            int curAmount = getAmountToMeFromTransaction(cur);
-            inputTransactions.add(cur);
-            total += curAmount;
+            if(iter.hasNext()) {
+              Transaction cur = iter.next();  //todo (himanshuo): handle iter.hasNext() is false
+              assert validQueueMember(cur);
+              int curAmount = getAmountToMeFromTransaction(cur);
+              inputTransactions.add(cur);
+              total += curAmount;
+            } else {
+              throw new InsufficientFundsException();
+            }
         }
         return total;
     }
@@ -128,7 +135,6 @@ public class Client {
         int inputValue = getInputTransactions(amount, inputTransactions);
         if(inputValue < amount) throw new InsufficientFundsException();
 
-        //todo (himanshuo): handle value of inputTransaction is too high - cut last transaction into 2
         int valueAdded = 0;
         for(int i = 0; i<inputTransactions.size(); i++) {
             Transaction cur = inputTransactions.get(i);
@@ -136,7 +142,6 @@ public class Client {
             out.add(buildInputTransactionFromTransaction(cur, i));
         }
         if(valueAdded > amount) {
-          //add a new output transaction pointing to self
           OutputTransaction outputToSelf = new OutputTransaction(valueAdded - amount, this.addr);
           outputs.add(outputToSelf);
         }
@@ -182,6 +187,8 @@ public class Client {
             Transaction t = new Transaction(inputs, outputs);
             if(submit(t)) {
                 recipient.coins += amount;
+                // todo (himanshuo): remove t.inputs from this.myTransactionQueue
+                // todo (himanshuo): add t.outputs to recipient.myTransactionQueue
                 this.coins -= amount;
 
                 //todo (himanshuo): remove all inputs of t from queue
@@ -190,7 +197,7 @@ public class Client {
                 return false;
             }
       } catch (NoSuchAlgorithmException | IOException | Hash.UnknownByteConversionException | InsufficientFundsException   e){
-            System.out.println(e.fillInStackTrace());
+            LOGGER.log(Level.SEVERE, "Error", e.fillInStackTrace());
             return false;
         }
 
@@ -257,7 +264,7 @@ public class Client {
             ProofOfWork.SHA256(transaction.toString(), 2);
         } catch (Exception e){
             //todo (himanshuo): perhaps some exceptions should bleed through?
-            System.out.println(e.fillInStackTrace());
+            LOGGER.log(Level.SEVERE, "Error", e.fillInStackTrace());
             return false;
         }
 

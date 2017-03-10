@@ -111,4 +111,53 @@ public class BlockChainTest {
         assertEquals(2, a.ledger.size());
     }
 
+    @Test
+    public void testTransactionsQueingInternally() {
+        Client a = new Client(3);
+        Client b = new Client(0);
+
+        assertEquals(3, a.coins);
+        assertEquals(0, b.coins);
+
+        assertTrue(a.send(1, b));
+        assertEquals(2, a.coins);
+        assertEquals(1, b.coins);
+        TestUtils.assertConsistentLedger(a.ledger, b.ledger);
+
+        assertTrue(a.send(1, b));
+        assertEquals(1, a.coins);
+        assertEquals(2, b.coins);
+        TestUtils.assertConsistentLedger(a.ledger, b.ledger);
+
+        assertTrue(a.send(1, b));
+        assertEquals(0, a.coins);
+        assertEquals(3, b.coins);
+        TestUtils.assertConsistentLedger(a.ledger, b.ledger);
+
+        assertFalse(a.send(1, b));
+        assertEquals(0, a.coins);
+        assertEquals(3, b.coins);
+        TestUtils.assertConsistentLedger(a.ledger, b.ledger);
+    }
+
+    @Test
+    public void testSendAfterFail() {
+        Client a = new Client(3);
+        Client b = new Client(0);
+
+        assertEquals(3, a.coins);
+        assertEquals(0, b.coins);
+
+        assertFalse(a.send(4, b));
+        assertEquals(3, a.coins);
+        assertEquals(0, b.coins);
+        TestUtils.assertConsistentLedger(a.ledger, b.ledger);
+
+        assertTrue(a.send(1, b));
+        assertEquals(2, a.coins);
+        assertEquals(1, b.coins);
+        TestUtils.assertConsistentLedger(a.ledger, b.ledger);
+
+    }
+
 }
