@@ -10,22 +10,14 @@ import java.util.Random;
 public class Internet {
     //this is a fake class that mocks the internet for BlockChain
     private static ArrayList<Client> clients = new ArrayList<Client>();
-    private Internet(){}    // prevent anyone from creating another internet
+    private Internet(){}    // prevent anyone from creating an internet
 
-//    private static Internet singleInstance;
-//    private static Internet getInstance(){
-//        if(singleInstance==null){
-//            singleInstance = new Internet();
-//        }
-//        return singleInstance;
-//    }
-
-
-    public static BitcoinAddress registerClient(Client c, ArrayList<Transaction> ledger){
-        catchUpLedger(ledger);
+    public static BlockchainAddress registerClient(Client c){
+        c.ledger = getLedger();
+        c.addr = new BlockchainAddress(String.valueOf((int)(Math.random() * 10000)));
         clients.add(c);
-        return new BitcoinAddress(String.valueOf((int)(Math.random() * 10000)));
     }
+
     public static ArrayList<Client> getClientList(){
         //shuffling makes it so that the order of retrievals is random
         long seed = System.nanoTime();
@@ -52,13 +44,13 @@ public class Internet {
       return false;
     }
 
-    public static void catchUpLedger(ArrayList<Transaction> ledger) {
+    public static void getLedger() {
+      // todo (himanshuo): Genesis block
       if(clients.size() == 0) return;
+
       int clientNumber = (int)(Math.random() * (clients.size()-1));
       Client client = clients.get(clientNumber);
-      for(int i = 0; i < client.ledger.size(); i++) {
-        ledger.add(client.ledger.get(i));
-      }
+      return new Ledger(client.ledger);
     }
 
     public static void broadcast(Transaction t) {

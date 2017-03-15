@@ -8,16 +8,19 @@
 * Cut Down todos
 * Transaction Verification
 * configurable Transaction Verification
-* Bitcoin Address?
 * Message Structure
 * Merkle Tree
 * Reward players for validating transactions
-* Use a logger instead of println
 * Genesis Block
 * update Coinbase Transaction
 * Rename BlockChain -> MyBlockChain?
 * config file for custom version of blockchain
 * store hash instead of complete transaction in ledgers
+* Actually log info everywhere
+* > 80% Test coverage
+* Test Coverage Report
+* Stylecheck
+* common bugs check
 
 ### Future Work
 * Use original paper (https://bitcoin.org/bitcoin.pdf) and online article (http://www.michaelnielsen.org/ddi/how-the-bitcoin-protocol-actually-works/) to determine requirements

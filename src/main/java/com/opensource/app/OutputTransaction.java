@@ -5,13 +5,20 @@ package com.opensource.app;
  */
 public class OutputTransaction {
     int value;  // todo (himanshuo): double
-    BitcoinAddress recipient;
-    public OutputTransaction(int v, BitcoinAddress ba) {
+    BlockchainAddress recipient;
+    public OutputTransaction(int v, BlockchainAddress ba) {
         value=v;
         recipient=ba;
     }
 
     public String toString(){
-      return "<OutputTransaction recipientIp="+recipient.ipaddress+">";
+      return String.format("<OutputTransaction recipientIp=%s value=%s>",recipient.ipaddress, value);
+    }
+
+    public OutputTransaction clone() {
+      return new OutputTransaction(
+        value,
+        recipient.clone()
+      );
     }
 }

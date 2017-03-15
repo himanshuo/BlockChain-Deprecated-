@@ -1,6 +1,5 @@
 package com.opensource.app;
 
-import com.opensource.app.lib.Hash;
 import com.opensource.app.lib.ProofOfWork;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -8,85 +7,31 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+
+//todo (himanshuo): many of the functions in this class should be methods of the Transaction class, which has access to input/output transactions
+
 /**
  * Created by himanshu on 12/5/16.
  */
 public class Client {
     public class InsufficientFundsException extends Exception{};
-    private static final Logger LOGGER = Logger.getLogger( Client.class.getName() );
-
+    private static final Logger LOGGER = Logger.getLogger(Client.class.getName());
     int coins;
-    //todo (himanshuo): actual ip address
-    //todo (himanshuo): more durable client identification technique?
-    BitcoinAddress addr;
+    BlockchainAddress addr;
     String signature;
-    //todo (himanshuo): better done via a bitmap?
-    //todo (himanshuo): need some sort of init function which makes any new clients ledge up to date with entire history of ledgers
-    //todo (himanshuo): each client does have a linked list of all transactions. thus this needs to be a linked list instead of an arraylist
-    ArrayList<Transaction> ledger = new ArrayList<Transaction>();
-    ArrayList<Transaction> myTransactionQueue = new ArrayList<Transaction>();
-    //todo (himanshuo): a separate linkedlist of pointers should exist pointing to this clients transactions
+    String publicKey;
+    String privateKey;
+    ArrayList<Transaction> myTransactionQueue;
+    //todo (himanshuo): Client IS-A Miner
 
-
-    private Client() {
-        addr = Internet.registerClient(this, ledger);
+    public Client() {
+        Internet.registerClient(this);
         coins = 0;
         //todo (himanshuo): proper signature
-        signature = addr.ipaddress;
-    }
-
-
-    //todo (himanshuo): Genesis Block
-    //todo (himanshuo): this shouldn't exist. A new client should start with 0 coins. Some initial value could be `transferred` to it.
-    public Client(int x) {
-        this();
-        try {
-            // todo (himanshuo): Transaction interface with Transaction class and Coinbase class?
-
-            //this is a first attempt at a coinbase implementation
-            OutputTransaction ot = new OutputTransaction(x, this.addr);
-            ArrayList<OutputTransaction> otList = new ArrayList<OutputTransaction>();
-            otList.add(ot);
-            Transaction coinbase = new Transaction(new ArrayList<InputTransaction>(), otList);
-            broadcast(coinbase);
-            myTransactionQueue.add(coinbase);
-            coins = x;
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String ledgerString() {
-      String out = "";
-      for(int i =0; i< ledger.size(); i++){
-        out += "" + (ledger.get(i).hash) + "  ->  ";
-      }
-      return out;
-    }
-
-
-    private boolean validQueueMember(Transaction t) {
-        for(OutputTransaction ot: t.out) {
-            if(ot.recipient.equals(this.addr)) return true;
-        }
-        return false;
-    }
-
-    // todo (himanshuo): A lot of these helper functions can be put together as static functions in some helper class in lib
-    private int valueOfTransactions(ArrayList<Transaction> transactions){
-        int out = 0;
-        for(Transaction t: transactions){
-            out += getAmountToMeFromTransaction(t);
-        }
-        return out;
-    }
-
-    private int getAmountToMeFromTransaction(Transaction t){
-        for(OutputTransaction ot: t.out){
-            if(ot.recipient.equals(this.addr)) return ot.value;
-        }
-        LOGGER.log( Level.INFO, "I DO NOT EXIST AS OUTPUT OF TRANSACTION", t.toString());
-        return 0;
+        publicKey = "publicKey for " + addr.ipaddress;
+        privateKey = "privateKey for " + addr.ipaddress;
+        signature = publicKey;
+        myTransactionQueue = new ArrayList<Transaction>();
     }
 
     private int getInputTransactions(int amount, ArrayList<Transaction> inputTransactions) throws InsufficientFundsException {
@@ -101,12 +46,10 @@ public class Client {
 
         int total = 0;
         Iterator<Transaction> iter = myTransactionQueue.iterator();
-        LOGGER.log(Level.INFO, "GETTING INPUTS FOR NEW TRANSACTION. myTransactionQueue.size()=" + myTransactionQueue.size());
         while(total < amount) {
             if(iter.hasNext()) {
               Transaction cur = iter.next();
-              assert validQueueMember(cur);
-              int curAmount = getAmountToMeFromTransaction(cur);
+              int curAmount = cur.getAmountToClient(this);
               inputTransactions.add(cur);
               total += curAmount;
             } else {
@@ -117,7 +60,7 @@ public class Client {
     }
 
     private InputTransaction buildInputTransactionFromTransaction(Transaction t, int numInput) {
-        byte [] hash = t.hash;
+        Hash hash = t.hash;
         String signature = this.signature;
         String publicKey = "";
         return new InputTransaction(
@@ -138,7 +81,7 @@ public class Client {
         int valueAdded = 0;
         for(int i = 0; i<inputTransactions.size(); i++) {
             Transaction cur = inputTransactions.get(i);
-            valueAdded += getAmountToMeFromTransaction(cur);
+            valueAdded += cur.getAmountToClient(this);
             out.add(buildInputTransactionFromTransaction(cur, i));
         }
         if(valueAdded > amount) {
@@ -149,8 +92,7 @@ public class Client {
     }
 
 
-
-    private ArrayList<OutputTransaction> buildOutput(int amount, Client recipient){
+    private ArrayList<OutputTransaction> buildOutput(int amount, Client recipient) {
         ArrayList<OutputTransaction> out = new ArrayList<OutputTransaction>();
         out.add(new OutputTransaction(amount, recipient.addr));
         return out;
@@ -167,7 +109,7 @@ public class Client {
         //todo (himanshuo): get validations from others
         //todo (himanshuo): accept if >50% of others say its good
         //todo (himanshuo): if success, broadcast to others
-        if(Internet.verify(t)){
+        if(Internet.verify(t)) {
             broadcast(t);
             return true;
         }
@@ -175,105 +117,43 @@ public class Client {
     }
 
     //todo (himanshuo): allow for list of recipients
-    public boolean send(int amount, Client recipient){
-      if(amount > this.coins || amount < 0) return false;
-
-        try {
-
-            ArrayList<OutputTransaction> outputs = buildOutput(amount, recipient);
-
-            ArrayList<InputTransaction> inputs = buildInput(amount, outputs);
-
-            Transaction t = new Transaction(inputs, outputs);
-            if(submit(t)) {
-                recipient.coins += amount;
-                // todo (himanshuo): remove t.inputs from this.myTransactionQueue
-                for(InputTransaction inputTransaction: t.in) {
-                  Transaction toRemove = getTransactionFromHash(inputTransaction.hash);
-                  this.myTransactionQueue.remove(toRemove);
-                }
-                // todo (himanshuo): add t to recipient.myTransactionQueue
-                recipient.myTransactionQueue.add(t);
-                this.coins -= amount;
-
-                //todo (himanshuo): remove all inputs of t from queue
-                return true;
-            } else {
-                return false;
-            }
-      } catch (NoSuchAlgorithmException | IOException | Hash.UnknownByteConversionException | InsufficientFundsException   e){
+    public boolean send(int amount, Client recipient) {
+      LOGGER.log(Level.INFO, String.format("%s ->%d-> %s\n", this.addr.toString(), amount, recipient.addr.toString()));
+      try {
+          ArrayList<OutputTransaction> outputs = buildOutput(amount, recipient);
+          int outputCount = outputs.size();
+          ArrayList<InputTransaction> inputs = buildInput(amount, outputs);
+          Transaction t = new Transaction(inputs, outputs);
+          if(submit(t)) {
+              // remove t.inputs from this.myTransactionQueue
+              LOGGER.log(Level.INFO, String.format("Removing transaction inputs %s from myTransactionQueue\n", t.in.toString()));
+              for(InputTransaction inputTransaction: t.in) {
+                Transaction toRemove = ledger.getTransactionFromHash(inputTransaction.hash);
+                this.myTransactionQueue.remove(toRemove);
+              }
+              // add Transaction to self
+              if (outputCount + 1 == outputs.size()) {
+                LOGGER.log(Level.INFO, "Adding new transaction to myTransactionQueue because contained self as output");
+                this.myTransactionQueue.add(t);
+              }
+              // todo (himanshuo): this recipient logic should be decoupled. A client should have an accept function that Internet calls.
+              // add t to recipient.myTransactionQueue
+              LOGGER.log(Level.INFO, "Adding Transaction to recipients myTransactionQueue");
+              recipient.myTransactionQueue.add(t);
+              // handle coin values
+              LOGGER.log(Level.INFO, "Updating coin values for self and recipient");
+              recipient.coins += amount;
+              this.coins -= amount;
+              LOGGER.log(Level.INFO, String.format("Success: %s ->%d-> %s\n", this.addr.toString(), amount, recipient.addr.toString()));
+              return true;
+          } else {
+              LOGGER.log(Level.INFO, String.format("Failed: %s ->%d-> %s\n", this.addr.toString(), amount, recipient.addr.toString()));
+              return false;
+          }
+      } catch (NoSuchAlgorithmException | IOException | InsufficientFundsException e) {
             LOGGER.log(Level.SEVERE, e.toString(), e.fillInStackTrace());
             return false;
-        }
-
-    }
-
-    private boolean equalHash(byte [] hashOne, byte[] hashTwo) {
-      if(hashOne == hashTwo) return true;
-      if(hashOne==null ^ hashTwo==null) return false;
-      if(hashOne.length != hashTwo.length) return false;
-      for(int i =0; i< hashOne.length; i++) {
-        if(hashOne[i] != hashTwo[i]) return false;
       }
-      return true;
-    }
-
-    public Transaction getTransactionFromHash(byte[] hash) {
-        for(Transaction t: this.ledger){
-            if(equalHash(t.hash, hash)) return t;
-        }
-        return null;
-    }
-
-    // todo (himanshuo): actually have everyone validate transactions
-    public boolean validate(Transaction transaction){
-        /*
-        Validating transaction requires
-              1) 'in' transactions have to exist in client's ledger
-              2) 'in' transactions have to have correct hash
-              3) sum('out' transaction values) == sum('in' transactions values)
-         More advanced Validation requires
-              1) make it computationally costly for network users to validate transactions
-                  1.1) hash function
-                  1.2) can configure hash function
-              2) reward those who validate transactions
-                  2.1) lottery system of giving reward only to 1st client which validates (Internet randomization helps with this)
-        */
-        //todo (himanshuo) : Verifications should be registered
-        int inSum = 0, outSum = 0;
-        ArrayList<BitcoinAddress> baList = new ArrayList<BitcoinAddress>();
-        for(OutputTransaction t : transaction.out){
-            outSum += t.value;
-            baList.add(t.recipient);
-        }
-
-        for(InputTransaction t : transaction.in) {
-            Transaction fromLedger = getTransactionFromHash(t.hash);
-            // 'in' transactions exist in ledger with correct hash
-            if(fromLedger == null || !equalHash(fromLedger.hash, t.hash)) {
-                return false;
-            }
-
-            // get value that this input is sending to any one of the outputs
-            for(OutputTransaction ot: fromLedger.out) {
-                inSum += ot.value;
-            }
-        }
-
-
-        //todo (himanshuo): do I know 'in' sum in hash version?
-        // sum('out' transaction values) == sum('in' transaction values)
-        if(outSum != inSum) return false;
-
-        try {
-            ProofOfWork.SHA256(transaction.toString(), 2);
-        } catch (Exception e){
-            //todo (himanshuo): perhaps some exceptions should bleed through?
-            LOGGER.log(Level.SEVERE, e.toString(), e.fillInStackTrace());
-            return false;
-        }
-
-        return true;
     }
 
 }
