@@ -1,3 +1,5 @@
+# THIS REPO IS DEPRECATED. Instead see my other blockchain implementation
+
 # BlockChain
 Generic Open Source Block Chain
 
