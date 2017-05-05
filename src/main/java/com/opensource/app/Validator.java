@@ -37,5 +37,5 @@ public class Validator {
   }
 
   // todo (himanshuo): Check SIGNATURE: isvalid(transaction, publicKey of client, transaction signed value) = true/false
-
+  
 }

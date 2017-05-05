@@ -1,6 +1,5 @@
-package com.opensource.app.lib;
+package com.opensource.app;
 
-import com.opensource.app.Hash;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 

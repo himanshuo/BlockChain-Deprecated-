@@ -1,13 +1,40 @@
 package com.opensource.app;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
-public class Miner{
+public class Miner {
 
 
-  public Miner(){}
+  public class InsufficientFundsException extends Exception{};
+
+  private static final Logger LOGGER = Logger.getLogger(Client.class.getName());
+
+  BlockchainAddress addr;
+  String signature;
+  String publicKey;
+  String privateKey;
+  Ledger ledger;
+
+  public Miner(){
+    Internet.register(this);
+
+    //todo (himanshuo): proper signature
+    publicKey = "publicKey for " + addr.ipaddress;
+    privateKey = "privateKey for " + addr.ipaddress;
+    signature = publicKey;
+  }
+
+  public void broadcast(Transaction t){
+      //send to internet so others can pick up
+      Internet.broadcast(t);
+  }
+
+  // todo (himanshuo): broadcast for TransactionBlocks
 
   //todo (himanshuo): Genesis Block
+
 
 
   // public void coinbase(){
@@ -20,11 +47,11 @@ public class Miner{
   // }
 
   boolean mine(ArrayList<Transaction> unvalidatedTransactions){
-
+    return false;
   }
 
   private Transaction determineEdge() {
-
+    return null;
   }
 
   // todo (himanshuo): actually have everyone validate transactions
@@ -51,7 +78,7 @@ public class Miner{
       }
       LOGGER.log(Level.INFO, "OUT SUM:" + outSum);
       for(InputTransaction t : transaction.in) {
-          Transaction fromLedger = getTransactionFromHash(t.hash);
+          Transaction fromLedger = ledger.getTransaction(t.hash);
           // 'in' transactions exist in ledger with correct hash
           if(fromLedger == null || !fromLedger.hash.equals(t.hash)) {
               return false;

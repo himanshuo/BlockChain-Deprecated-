@@ -1,6 +1,5 @@
 package com.opensource.app;
 
-import com.opensource.app.lib.ProofOfWork;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -13,24 +12,17 @@ import java.util.logging.Level;
 /**
  * Created by himanshu on 12/5/16.
  */
-public class Client {
-    public class InsufficientFundsException extends Exception{};
+public class Client extends Miner {
+
     private static final Logger LOGGER = Logger.getLogger(Client.class.getName());
     int coins;
-    BlockchainAddress addr;
-    String signature;
-    String publicKey;
-    String privateKey;
+
     ArrayList<Transaction> myTransactionQueue;
     //todo (himanshuo): Client IS-A Miner
 
     public Client() {
-        Internet.registerClient(this);
+        super();
         coins = 0;
-        //todo (himanshuo): proper signature
-        publicKey = "publicKey for " + addr.ipaddress;
-        privateKey = "privateKey for " + addr.ipaddress;
-        signature = publicKey;
         myTransactionQueue = new ArrayList<Transaction>();
     }
 
@@ -98,10 +90,6 @@ public class Client {
         return out;
     }
 
-    public void broadcast(Transaction t){
-        //send to internet so others can pick up
-        Internet.broadcast(t);
-    }
 
     public boolean submit(Transaction t) {
         //todo (himanshuo): validate from own ledger
@@ -128,7 +116,7 @@ public class Client {
               // remove t.inputs from this.myTransactionQueue
               LOGGER.log(Level.INFO, String.format("Removing transaction inputs %s from myTransactionQueue\n", t.in.toString()));
               for(InputTransaction inputTransaction: t.in) {
-                Transaction toRemove = ledger.getTransactionFromHash(inputTransaction.hash);
+                Transaction toRemove = ledger.getTransaction(inputTransaction.hash);
                 this.myTransactionQueue.remove(toRemove);
               }
               // add Transaction to self
